@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TodoAPI</name>
+    </assembly>
+    <members>
+        <member name="T:TodoAPI.Controllers.TodoController">
+            <summary>
+            Our Todo API controller!
+            </summary>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoController.#ctor(TodoAPI.DAL.TodoContext)">
+            <summary>
+            Use Dependency Injection to populate our
+            _context DB context.
+            </summary>
+            <param name="context">Psuedo-holder for our DB context values.</param>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoController.GetAll">
+            <summary>
+            <para>
+            GET: api/Todo
+            </para>
+            <para>
+            SQL: SELECT * FROM dbo.Todos;
+            </para>
+            <para>
+            Fetches all records in the DB and returns
+            them in an <code>IEnumerable</code> list.
+            </para>
+            </summary>
+            <returns>Status Code 200 (OK) along with the list of to-dos in JSON format.</returns>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoController.GetTodo(System.Int32)">
+            <summary>
+            <para>
+            GET: api/Todos/{id}
+            </para>
+            <para>
+            SQL: SELECT * FROM dbo.Todos WHERE [id] = '{id}';
+            </para>
+            <para>
+            Fetches a single record from our DB.
+            </para>
+            </summary>
+            <param name="id">Record ID to be returned as JSON.</param>
+            <returns></returns>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoController.CreateTodo(TodoAPI.Models.Todo)">
+            <summary>
+            <para>
+            POST: api/Todo
+            </para>
+            <para>
+            SQL: INSERT INTO dbo.Todo ([Name],[Content])
+             VALUES({todo.name},{todo.content});
+            </para>
+            <para>
+            Creates a record in our DB from the request body sent.
+            Supports Model verification, and returns an error if the
+            ModelState is not valid.
+            </para>
+            </summary>
+            <param name="todo">Values in the POSTed request body</param>
+            <returns>A location header with the GET URL of the newly created record. Bad Request (400) otherwise.</returns>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoController.UpdateTodo(System.Int32,TodoAPI.Models.Todo)">
+            <summary>
+            <para>
+            PUT: api/Todo/{id}
+            </para>
+            <para>
+            SQL: UPDATE Todos SET [Name] = {item.name},[Content] = {item.content}
+             WHERE [Id] = '{id}';
+            </para>
+            </summary>
+            <param name="id">ID of record we want to update.</param>
+            <param name="item">POSTed request body containing values to update our record with.</param>
+            <returns>204 (No Content) on success, 404 (Not Found) if no record exists, and 400 (Bad Request) on error.</returns>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoController.DeleteTodo(System.Int32)">
+            <summary>
+            <para>
+            DELETE: api/Todo/{id}
+            </para>
+            <para>
+            SQ: DELETE FROM Todos WHERE Id = {id};
+            </para>
+            <para>
+            Deletes a record from our DB.
+            </para>
+            </summary>
+            <param name="id">ID of record we want to delete.</param>
+            <returns>404 (Not Found) if no such <paramref name="id"/> exists, or 204 (No Content) if successful.</returns>
+        </member>
+    </members>
+</doc>

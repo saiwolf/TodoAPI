@@ -9,6 +9,7 @@ namespace TodoAPI.DAL
             : base(options)
         { }
 
-        public DbSet<Todo> Todo { get; set; }
+        public virtual DbSet<Todo> Todo { get; set; }
+        public virtual DbSet<User> User { get; set; }
     }
 }

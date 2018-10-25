@@ -52,6 +52,23 @@ namespace TodoAPI.Controllers
             return Ok(user);
         }
 
+        //[AllowAnonymous]
+        //[HttpPost("HashPass")]
+        //public IActionResult HashPassword([FromBody]string pass2hash)
+        //{
+        //    // hash the password supplied
+        //    var hashedPassword = BCrypt.Net.BCrypt.HashPassword(pass2hash);
+
+        //    if(BCrypt.Net.BCrypt.Verify(pass2hash, hashedPassword))
+        //    {
+        //        return Ok(hashedPassword);
+        //    }
+        //    else
+        //    {
+        //        return BadRequest(new { message = "Error hashing password!" });
+        //    }
+        //}
+
         /// <summary>
         /// Simple method to get all users, sans passwords.
         /// Users must be authorized first before being allowed
@@ -59,10 +76,11 @@ namespace TodoAPI.Controllers
         /// </summary>
         /// <returns>Ok (200) with users object from IUserService</returns>
         [HttpGet("GetAllUsers")]
-        public IActionResult GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
-            var users = _userService.GetAll();
-            return Ok(users);
+            var users = await _context.User.AsNoTracking().ToListAsync();
+            var users_sanitized = _userService.GetAll(users);
+            return Ok(users_sanitized);
         }
     }
 }

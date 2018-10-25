@@ -7,10 +7,16 @@ This project is licensed under the [MIT](https://opensource.org/licenses/MIT) li
 
 This is a simple example of me learning how to construct Web APIs using [ASP.NET Core 2.1 Web API](https://docs.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-2.1) utilizing [SQLite](https://www.sqlite.org/index.html) as the DB backend.
 
+The User code was borrowed/modified from this [Tutorial](http://jasonwatmore.com/post/2018/08/14/aspnet-core-21-jwt-authentication-tutorial-with-example-api)
+by [Jason Watmore](http://jasonwatmore.com).
+
+It builds off a simple To-Do API and adds User Authentication via JWT Tokens.
+
 ## Prerequisites
 * [Visual Studio](https://visualstudio.microsoft.com/downloads/) - The Community Edition is free. You'll need .NET Core 2.1 and the ASP.NET Core Templates.
 * [Microsoft.EntityFrameworkCore.Sqlite](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite/2.1.4) - I used SQLite in this project, but due to EntityFramework, you could just as easily use another DB provider.
 * [Swashbuckle.AspNetCore](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) - A really awesome package for documenting and testing APIs.
+* [BCrypt.Net-Next](https://github.com/BcryptNet/bcrypt.net) - For hashing passwords for users and password checking using BCrypt.
 
 ## Instructions
 1. Add a folder to the project called `Database`. Do this through VS.

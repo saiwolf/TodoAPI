@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TodoAPI.Models;
 using TodoAPI.DAL;
-
+using TodoAPI.Models;
+using TodoAPI.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,9 +14,13 @@ namespace TodoAPI.Controllers
 {
     /// <summary>
     /// Our Todo API controller!
+    /// [Authorize] tells ASP.NET MVC that users
+    /// must authenticate first to be allowed to
+    /// use this controller.
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TodoController : ControllerBase
     {
         // Delcare our DB context.

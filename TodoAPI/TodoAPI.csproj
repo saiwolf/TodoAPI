@@ -5,10 +5,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\link0\source\repos\TodoAPI\TodoAPI\TodoAPI.xml</DocumentationFile>
+    <DocumentationFile>.\TodoAPI.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Database\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

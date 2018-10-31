@@ -10,8 +10,10 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+# Custom entries
 ClientApp/
 TodoClient/
+appsettings.json
 
 # Build results
 [Dd]ebug/

@@ -49,6 +49,7 @@ namespace TodoAPI.Controllers
         /// </para>
         /// </summary>
         /// <returns>Status Code 200 (OK) along with the list of to-dos in JSON format.</returns>
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

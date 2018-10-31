@@ -1,10 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TodoAPI.Models
 {
     public class User
     {
+        public User()
+        {
+            Todos = new HashSet<Todo>();
+        }
+
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -24,5 +30,7 @@ namespace TodoAPI.Models
                 return FirstName + " " + LastName;
             }
         }
+
+        public ICollection<Todo> Todos { get; set; }
     }
 }

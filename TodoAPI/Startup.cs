@@ -33,7 +33,7 @@ namespace TodoAPI
             // configure our DB Context
             services.AddDbContext<TodoContext>(options =>
             {
-                options.UseSqlite("Data Source=Database\\todo.db");
+                options.UseSqlServer(Configuration.GetConnectionString("todoContext"));
             });
 
             // configure Swashbuckle/Swagger

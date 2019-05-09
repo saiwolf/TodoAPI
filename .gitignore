@@ -10,6 +10,9 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+# Custom entries
+logs/*.*
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -265,3 +268,4 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/TodoAPI/logs/site.txt

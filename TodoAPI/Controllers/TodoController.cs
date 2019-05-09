@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoAPI.Models;
 using TodoAPI.DAL;
+using TodoAPI.Utilities;
+using Serilog;
+using System.Linq;
+using TodoAPI.Filters;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -14,6 +18,7 @@ namespace TodoAPI.Controllers
     /// <summary>
     /// Our Todo API controller!
     /// </summary>
+    [ServiceFilter(typeof(ClientIpCheckFilter))]
     [Route("api/[controller]")]
     [ApiController]
     public class TodoController : ControllerBase
@@ -47,11 +52,26 @@ namespace TodoAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            // Populate `todos` as an IEnumerable<Todo> List from the DB.
-            IEnumerable<Todo> todos = await _context.Todo.ToListAsync();
-            // We don't check if `todos` is null here. The client should have a case
-            // to check if the response is blank.
-            return Ok(todos);
+            try
+            {
+                // Populate `todos` as an IEnumerable<Todo> List from the DB.
+
+                var todos = await _context.Todo.ToListAsync();
+
+                if (!todos.Any())
+                {
+                    throw new Exception("TodoController.cs [GetAll]: Error retrieving data from DB: No records available.");
+                }
+
+                // We don't check if `todos` is null here. The client should have a case
+                // to check if the response is blank.
+                return Ok(todos);
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest(new { Error = "No Records available." });
+            }
         }
 
         /// <summary>
@@ -70,16 +90,24 @@ namespace TodoAPI.Controllers
         [HttpGet("{id}", Name = "GetTodo")] // We name this Action, so CreatedAtRoute later on will work.
         public async Task<IActionResult> GetTodo(int id)
         {
-            // Fetch our record from the DB asynchronously
-            Todo todo = await _context.Todo.FirstOrDefaultAsync(m => m.Id == id);
-            // If `todo` is null, then we very likely don't have any record with that `{id}`.
-            // So we return a HTTP 404 (Not Found).
-            if (todo == null)
+            try
             {
-                return NotFound("ID wasn't found.");
+                // Fetch our record from the DB asynchronously
+                Todo todo = await _context.Todo.FirstOrDefaultAsync(m => m.Id == id);
+                // If `todo` is null, then we very likely don't have any record with that `{id}`.
+                // So we return a HTTP 404 (Not Found).
+                if (todo == null)
+                {
+                    throw new Exception("TodoController.cs [GetTodo]: Error retrieving record from DB: Record ID not found.");
+                }
+                // Else, we return a HTTP 200 (OK) along with our record in JSON format.
+                return Ok(todo);
             }
-            // Else, we return a HTTP 200 (OK) along with our record in JSON format.
-            return Ok(todo);
+            catch(Exception ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest(new { Error = "Record ID was not found." });
+            }
         }
 
         /// <summary>
@@ -100,30 +128,31 @@ namespace TodoAPI.Controllers
         /// <returns>A location header with the GET URL of the newly created record. Bad Request (400) otherwise.</returns>
         [HttpPost]
         public async Task<IActionResult> CreateTodo([FromBody] Todo todo)
-        {
-            // Is the request body actually populated?
-            if (todo == null)
-            {
-                // Nope, so return an error.
-                return BadRequest("No Data given");
-            }
-
-            // If there's an error with the data provided, then return an error.
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-            
-            // Try-Catch block for DB operations.
+        {            
+            // Try-Catch block for POST.
             try
             {
+                // Is the request body actually populated?
+                if (todo == null)
+                {
+                    // Nope, so return an error.
+                    Log.Error("TodoController.cs [CreateTodo]: No data received from client.");
+                    return BadRequest(new { Message = "No data received from client." });
+                }
+
+                // If there's an error with the data provided, then return an error.
+                if (!ModelState.IsValid)
+                {
+                    throw new Exception($"TodoController.cs [CreateTodo]: Data received from client was invalid.\n{ModelState.Values.ToString()}");
+                }
                 _context.Todo.Add(todo);
                 await _context.SaveChangesAsync();
                 return CreatedAtRoute("GetTodo", new { id = todo.Id }, todo);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                Log.Error(ex.Message);
+                return BadRequest(new { Error = $"Data received from client was invalid.\n{ModelState.Values.ToString()}" });
             }
             
         }
@@ -143,29 +172,37 @@ namespace TodoAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTodo(int id, [FromBody] Todo item)
         {
-            // Find our record to update in the DB.
-            var todo = await _context.Todo.FirstOrDefaultAsync(m => m.Id == id);
-
-            // If `todo` is null, then we didn't find a record.
-            if (todo == null)
+            try
             {
-                // So we return a 404 (Not Found)
-                return NotFound();
-            }
+                // Find our record to update in the DB.
+                var todo = await _context.Todo.FirstOrDefaultAsync(m => m.Id == id);
 
-            // Assign Values to Model
-            todo.Name = item.Name;
-            todo.Content = item.Content;
+                // If `todo` is null, then we didn't find a record.
+                if (todo == null)
+                {
+                    // So we return a 404 (Not Found)
+                    Log.Error("TodoController.cs [UpdateTodo]: Error retrieving record: record does not exist.");
+                    return NotFound();
+                }
 
-            // If our ModelState is valid, then our data is good against our Model.
-            if (ModelState.IsValid)
-            {
+                // Assign Values to Model
+                todo.Name = item.Name;
+                todo.Content = item.Content;
+
+                // If our ModelState is valid, then our data is good against our Model.
+                if (!ModelState.IsValid)
+                {
+                    throw new Exception($"TodoController.cs [UpdateTodo]: Data received from client was invalid.\n{ModelState.Values.ToString()}");
+                }
                 _context.Todo.Update(todo);
                 await _context.SaveChangesAsync();
-                return NoContent(); // HTTP Standard recommends returning 204 (No Content) on POST, PUT, and DELETE operations.
+                return NoContent(); // HTTP Standard recommends returning 204 (No Content) on POST, PUT, and DELETE operations.                
             }
-
-            return BadRequest("Error updating todo."); // If we reached here, something went drastically wrong.
+            catch (Exception ex)
+            {
+                Log.Error($"TodoController.cs [UpdateTodo]: Something went wrong updating the Todo. {ex.Message}");
+                return BadRequest(new { Error = $"Error updating the Todo item:\n{ModelState.Values.ToString()}" });
+            }
         }
 
         /// <summary>
@@ -184,20 +221,29 @@ namespace TodoAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTodo(int id)
         {
-            // Find our record in the DB.
-            var todo = await _context.Todo.FirstOrDefaultAsync(m => m.Id == id);
-
-            // If `todo` is null, then we didn't find our record.
-            if (todo == null)
+            try
             {
-                // So we return a 404 (Not Found)
-                return NotFound();
+                // Find our record in the DB.
+                var todo = await _context.Todo.FirstOrDefaultAsync(m => m.Id == id);
+
+                // If `todo` is null, then we didn't find our record.
+                if (todo == null)
+                {
+                    // So we return a 404 (Not Found)
+                    Log.Error("TodoController.cs [DeleteTodo]: Error retrieving data from DB: Record does not exist.");
+                    return NotFound();
+                }
+
+                _context.Todo.Remove(todo);
+                await _context.SaveChangesAsync();
+
+                return NoContent(); // HTTP Standard recommends returning 204 (No Content) on POST, PUT, and DELETE operations.
             }
-
-            _context.Todo.Remove(todo);
-            await _context.SaveChangesAsync();
-
-            return NoContent(); // HTTP Standard recommends returning 204 (No Content) on POST, PUT, and DELETE operations.
+            catch (Exception ex)
+            {
+                Log.Error($"TodoController.cs [DeleteTodo]: Error deleting record: {ex.Message}");
+                return BadRequest(new { Error = "Error deleting Todo." });
+            }
         }
     }
 }

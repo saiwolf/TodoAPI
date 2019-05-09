@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
 using TodoAPI.DAL;
+using TodoAPI.Filters;
 
 namespace TodoAPI
 {
@@ -21,7 +22,7 @@ namespace TodoAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            
             services.AddDbContext<TodoContext>(options =>
             {
                 options.UseSqlite("Data Source=Database\\todo.db");
@@ -31,6 +32,10 @@ namespace TodoAPI
             {
                 c.SwaggerDoc("v1", new Info { Title = "Todo API", Version = "v1" });
             });
+
+            services.AddScoped<ClientIpCheckFilter>();
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

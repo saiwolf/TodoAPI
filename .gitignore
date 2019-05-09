@@ -11,7 +11,9 @@
 *.userprefs
 
 # Custom entries
-logs/*.*
+ClientApp/
+TodoClient/
+appsettings.json
 
 # Build results
 [Dd]ebug/
@@ -268,4 +270,3 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-/TodoAPI/logs/site.txt

@@ -1,0 +1,17 @@
+{
+  "AppSettings": {
+    "Secret": "Random string of alpha-numerical-special characters"
+  },
+  "Logging": {
+    "IncludeScopes": false,
+    "LogLevel": {
+      "Default": "Debug",
+      "System": "Information",
+      "Microsoft": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "todoContext": "Server=<YourSqlServer>;Database=todoList;Trusted_Connection=true;MultipleActiveResultSets=true;"
+  }
+}
